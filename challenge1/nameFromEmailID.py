@@ -4,7 +4,7 @@ import requests, re, ast
 # create a function for fetching the name of the target from an ID
 def fetchName(emailID):
     # concat email ID with the url of the website
-    url = "https://www.ecs.soton.ac.uk/people/" + emailID
+    url = f"https://www.ecs.soton.ac.uk/people/{emailID}/"
     # use the requests module to get a response from the url
     response = requests.get(url)
 
