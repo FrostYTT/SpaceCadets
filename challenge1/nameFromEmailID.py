@@ -39,4 +39,4 @@ while emailID == "":
     emailID = str(input("No ID entered. Please try again: "))
 
 # print(fetchName(emailID))
-print(fetchName(emailID))
+print(fetchName())
