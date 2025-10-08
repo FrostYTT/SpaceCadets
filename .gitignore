@@ -1,0 +1,5 @@
+# Venv folders
+venv/
+
+# .env Files
+.env
