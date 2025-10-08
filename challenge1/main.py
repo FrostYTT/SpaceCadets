@@ -2,7 +2,9 @@
 import requests, re, ast
 
 # create a function for fetching the name of the target from an ID
-def fetchName(url):
+def fetchName(emailID):
+    # concat email ID with the url of the website
+    url = "https://www.ecs.soton.ac.uk/people/" + emailID
     # use the requests module to get a response from the url
     response = requests.get(url)
 
@@ -32,12 +34,9 @@ def fetchName(url):
 
 
 # get the email ID from the user
-id = str(input("Enter the email ID of the target: "))
-while id == "":
-    id = str(input("No ID entered. Please try again: "))
+emailID = str(input("Enter the email ID of the target: "))
+while emailID == "":
+    emailID = str(input("No ID entered. Please try again: "))
 
-# concat email ID with the url of the website
-url = "https://www.ecs.soton.ac.uk/people/" + id
-
-
-print(fetchName(url))
+# print(fetchName(emailID))
+print(fetchName(emailID))
