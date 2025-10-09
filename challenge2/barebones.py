@@ -34,11 +34,10 @@ class Lexer():
 		return tokens
 
 class Parser():
-	def __init__(self, tokens, live = False):
+	def __init__(self, tokens):
 		self.tokens = tokens
 		self.counter = 0
 		self.expected = []
-		self.live = live
 	
 	def currentToken(self, adjust = 0):
 		return self.tokens[self.counter + adjust]
@@ -99,9 +98,8 @@ class Parser():
 				raise SyntaxError(f"Invalid syntax")
 	
 			self.counter += 1
-		if not self.live:
-			if astList[-1]["type"] != "end":
-				raise SyntaxError(f"barebones code must end with 'end;'")
+		if astList[-1]["type"] != "end":
+			raise SyntaxError(f"barebones code must end with 'end;'")
 		return astList
 
 class SemanticAnalyser():
@@ -175,24 +173,16 @@ class Barebones():
 		self.args = args
 
 	def run(self):
-		if args.targetfile:
-			if not args.targetfile.endswith(".bb") and not args.targetfile.endswith(".txt"):
-				print("Error: File must have a .bb or .txt extension.")
-				sys.exit(1)
-			try:
-				self.interpretFromFile(args.targetfile, args.silent)
-			except FileNotFoundError:
-				raise FileNotFoundError(f"Couldn't find {args.targetfile} file")
-		else:
-			print("No file provided. Launching live interpreter")
-			print("WELCOME MESSAGE")
-			self.liveInterpreter(args.silent)
-
-	def liveInterpreter(self, silent):
-		pass
+		if not args.targetfile.endswith(".bb"):
+			print("Error: File must have a .bb extension.")
+			sys.exit(1)
+		try:
+			self.interpret(args.targetfile, args.silent)
+		except FileNotFoundError:
+			raise FileNotFoundError(f"Couldn't find {args.targetfile} file")
 
 
-	def interpretFromFile(self, filepath, silent):
+	def interpret(self, filepath, silent):
 		# open file, read code
 		with open(filepath, "r") as f:
 			code = f.read()
@@ -218,8 +208,8 @@ class Barebones():
 
 if __name__ == "__main__":
 	import sys, re, argparse
-	argParser = argparse.ArgumentParser(description="Process a .bb or.txt, or launch the live interpreter.")
-	argParser.add_argument("targetfile", nargs="?", default=None, help="Path to file")
+	argParser = argparse.ArgumentParser(description="Interpret and execute a .bb file")
+	argParser.add_argument("targetfile", default=None, help="Path to file")
 	argParser.add_argument("-s", "--silent", action="store_true", help="Run in silent mode (variable output only at the end of the code)")
 	args = argParser.parse_args()
 	barebones = Barebones(args)
