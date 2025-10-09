@@ -4,5 +4,6 @@ venv/
 # .env Files
 .env
 
-# jupyter folders
+# jupyter stuff
 .ipynb_checkpoints
+.ipynb_checkpoints/
