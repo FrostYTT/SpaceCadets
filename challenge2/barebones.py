@@ -144,9 +144,7 @@ class Interpreter():
 			elif ast["type"] == "incr":
 				self.symbolTable[ast["name"]] += 1
 			elif ast["type"] == "decr":
-				self.symbolTable[ast["name"]] -= 1
-				if self.symbolTable[ast["name"]] < 0:
-					raise ArithmeticError(f"'{ast["name"]}' is -1. variables must be non-negative")
+				self.symbolTable[ast["name"]] = max(self.symbolTable[ast["name"]] - 1, 0)
 			elif ast["type"] == "copy":
 				self.symbolTable[ast["to"]] = self.symbolTable[ast["from"]]
 			elif ast["type"] == "while":
