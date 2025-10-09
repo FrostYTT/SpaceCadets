@@ -3,3 +3,6 @@ venv/
 
 # .env Files
 .env
+
+# jupyter folders
+.ipynb_checkpoints
