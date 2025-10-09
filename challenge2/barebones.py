@@ -112,12 +112,12 @@ class SemanticAnalyser():
 			if ast["type"] == "clear" and ast["name"] not in self.symbolTable:
 				self.symbolTable[ast["name"]] = 0
 			elif ast["type"] in ["incr", "decr", "while"] and ast["name"] not in self.symbolTable:
-				raise NameError(f"Variable '{ast["name"]}' not defined")
+				raise RuntimeError(f"Variable '{ast["name"]}' not defined")
 			elif ast["type"] == "copy":
 				if ast["from"] not in self.symbolTable:
-					raise NameError(f"Variable '{ast["from"]}' not defined")
+					raise RuntimeError(f"Variable '{ast["from"]}' not defined")
 				if ast["to"] not in self.symbolTable:
-					raise NameError(f"Variable '{ast["to"]}' not defined")
+					raise RuntimeError(f"Variable '{ast["to"]}' not defined")
 		return self.symbolTable
 
 class Interpreter():
