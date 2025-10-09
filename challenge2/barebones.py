@@ -88,6 +88,7 @@ class Parser():
 			elif token[0] == "while":
 				self.checkerGrouper(5, "identifier,not,zero,do,semicolon")
 				astList.append({"type": "while", "name": self.currentToken(1)[1]})
+				self.counter += 5
 
 			elif token[0] == "end":
 				self.checkerGrouper(1, "semicolon")
@@ -172,8 +173,7 @@ class Barebones():
 
 	def run(self):
 		if not args.targetfile.endswith(".bb"):
-			print("Error: File must have a .bb extension.")
-			sys.exit(1)
+			raise ValueError("Must parse a '.bb' file")
 		try:
 			self.interpret(args.targetfile, args.silent)
 		except FileNotFoundError:
