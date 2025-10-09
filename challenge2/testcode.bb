@@ -1,22 +1,4 @@
-clear F;
-clear N;
-clear G;
-clear H;
-incr F;
-incr N;
-incr N;
-incr N;
-
-decr N;
-while N not 0 do;
-  copy F to G;
-  while G not 0 do;
-    copy N to H;
-    while H not 0 do;
-      incr F;
-      decr H;
-    end;
-    decr G;
-  end;
-  decr N;
+clear a;
+incr a;
+incr a;
 end;

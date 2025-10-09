@@ -1,5 +1,4 @@
-import sys, re
-
+#!/usr/bin/env python3
 class Lexer():
 	def __init__(self):
 		self.validTokens = [
@@ -25,7 +24,7 @@ class Lexer():
 			value = match.group()
 
 			if kind == "identifier" and value in self.reservedKeywords:
-				kind = value  # classify as keyword
+				kind = value
 			elif kind == "whitespace":
 				continue
 			elif kind == "invalidChar":
@@ -35,10 +34,11 @@ class Lexer():
 		return tokens
 
 class Parser():
-	def __init__(self, tokens):
+	def __init__(self, tokens, live = False):
 		self.tokens = tokens
 		self.counter = 0
 		self.expected = []
+		self.live = live
 	
 	def currentToken(self, adjust = 0):
 		return self.tokens[self.counter + adjust]
@@ -94,10 +94,14 @@ class Parser():
 				self.checkerGrouper(1, "semicolon")
 				astList.append({"type": "end"})
 				self.counter += 1
+			
+			elif token[0] == "identifier":
+				raise SyntaxError(f"Invalid syntax")
 	
 			self.counter += 1
-		if astList[-1]["type"] != "end":
-			raise SyntaxError(f"barebones code must end with 'end;'")
+		if not self.live:
+			if astList[-1]["type"] != "end":
+				raise SyntaxError(f"barebones code must end with 'end;'")
 		return astList
 
 class SemanticAnalyser():
@@ -150,9 +154,9 @@ class Interpreter():
 			elif ast["type"] == "while":
 				loopIndexes.append(lineNum)
 			elif ast["type"] == "end":
-				if self.symbolTable[self.astList[loopIndexes[-1]]["name"]] == 0:
+				if loopIndexes and self.symbolTable[self.astList[loopIndexes[-1]]["name"]] == 0:
 					loopIndexes.pop()
-				else:
+				elif loopIndexes:
 					lineNum = loopIndexes[-1]
 				if not loopIndexes:
 					running = False
@@ -161,46 +165,62 @@ class Interpreter():
 			
 			lineNum += 1
 
+		print("END", end=" | ")
 		for symbol in self.symbolTable:
 			print(f"{symbol}: {self.symbolTable[symbol]}", end = " | ")
 		print("")
 
-
-
-
-
-
 class Barebones():
-	def __init__(self, filepath, silent = False):
-		self.filepath = filepath
-		self.silent = silent
-		with open(self.filepath, "r") as f:
-			self.code = f.read()
+	def __init__(self, args):
+		self.args = args
 
-	def preprocess(self):
-		if self.code[-1] != "\n":
-			self.code += "\n"
-		self.code = re.sub(r"#.*?\n", "", self.code)
+	def run(self):
+		if args.targetfile:
+			if not args.targetfile.endswith(".bb") and not args.targetfile.endswith(".txt"):
+				print("Error: File must have a .bb or .txt extension.")
+				sys.exit(1)
+			try:
+				self.interpretFromFile(args.targetfile, args.silent)
+			except FileNotFoundError:
+				raise FileNotFoundError(f"Couldn't find {args.targetfile} file")
+		else:
+			print("No file provided. Launching live interpreter")
+			print("WELCOME MESSAGE")
+			self.liveInterpreter(args.silent)
 
-	def interpret(self):
-		self.preprocess()
+	def liveInterpreter(self, silent):
+		pass
+
+
+	def interpretFromFile(self, filepath, silent):
+		# open file, read code
+		with open(filepath, "r") as f:
+			code = f.read()
+		# preprocess code ( remove comments )
+		if code[-1] != "\n":
+			code += "\n"
+		code = re.sub(r"#.*?\n", "", code)
+		# lexical analysis
 		lexer = Lexer()
-		tokens = lexer.tokenise(self.code)
+		tokens = lexer.tokenise(code)
+		# ensuring there is code in the program
 		if len(tokens) > 0:
+			# syntax analysis
 			parser = Parser(tokens)
 			astList = parser.syntaxAnalysis()
+			# semantic analysis
 			semanticAnalyser = SemanticAnalyser(astList)
 			symbolTable = semanticAnalyser.semanticAnalysis()
+			# interpretation
 			interpreter = Interpreter(astList, symbolTable)
-			interpreter.interpret(silent=self.silent)
-
-			# return (astList, symbolTable)
+			interpreter.interpret(silent=silent)
 
 
-
-filepath = sys.argv[1]
-# filepath = "testcode.bb"
-barebones = Barebones(filepath)
-barebones.interpret()
-# astList, symbolTable = barebones.interpret()
-# print(f"---AST list---\n{astList}\n\n---Symbol Table---\n{symbolTable}")
+if __name__ == "__main__":
+	import sys, re, argparse
+	argParser = argparse.ArgumentParser(description="Process a .bb or.txt, or launch the live interpreter.")
+	argParser.add_argument("targetfile", nargs="?", default=None, help="Path to file")
+	argParser.add_argument("-s", "--silent", action="store_true", help="Run in silent mode (variable output only at the end of the code)")
+	args = argParser.parse_args()
+	barebones = Barebones(args)
+	barebones.run()
